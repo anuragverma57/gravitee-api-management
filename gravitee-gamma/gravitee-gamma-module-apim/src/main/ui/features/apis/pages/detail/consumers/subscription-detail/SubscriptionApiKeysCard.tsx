@@ -87,7 +87,8 @@ function ApiKeyRowActions({
     onReactivate,
     isRevoking,
 }: ApiKeyRowActionsProps) {
-    if (!canUpdate || isShared || (subscriptionStatus !== 'ACCEPTED' && subscriptionStatus !== 'PENDING')) return null;
+    const isSubscriptionActionable = subscriptionStatus === 'ACCEPTED' || subscriptionStatus === 'PENDING';
+    if (!canUpdate || isShared || !isSubscriptionActionable) return null;
 
     const isValid = !apiKey.revoked && !apiKey.expired;
     const canMutateValidKey = isValid && subscriptionStatus === 'ACCEPTED' && !isFederated;

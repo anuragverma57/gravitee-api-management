@@ -19,6 +19,7 @@ import { useCallback, useState } from 'react';
 
 import { useCustomApiKeyEnabled } from '../../../../hooks/usePlanSecuritySettings';
 import type { ApproveSubscriptionPayload } from '../../../../types/subscription';
+import { dateInputToOffsetDateTime } from '../../../../utils/dateInputToOffsetDateTime';
 
 interface SubscriptionApproveDialogProps {
     open: boolean;
@@ -65,8 +66,8 @@ export function SubscriptionApproveDialog({
     const handleConfirm = useCallback(() => {
         const payload: ApproveSubscriptionPayload = {};
         if (form.reason.trim()) payload.reason = form.reason.trim();
-        if (showDates && form.startingAt) payload.startingAt = new Date(form.startingAt).toISOString();
-        if (showDates && form.endingAt) payload.endingAt = new Date(form.endingAt).toISOString();
+        if (showDates && form.startingAt) payload.startingAt = dateInputToOffsetDateTime(form.startingAt);
+        if (showDates && form.endingAt) payload.endingAt = dateInputToOffsetDateTime(form.endingAt);
         if (showCustomApiKey && form.customApiKey.trim()) payload.customApiKey = form.customApiKey.trim();
         onConfirm(payload);
     }, [form, showDates, showCustomApiKey, onConfirm]);

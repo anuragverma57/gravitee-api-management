@@ -180,15 +180,25 @@ export function SubscriptionActionsBar({
 
     const handleEndDate = useCallback(() => {
         const endingAt = endDate.trim() ? dateInputToOffsetDateTime(endDate) : null;
-        endDateMutation.mutate(endingAt, {
-            onSuccess: () => {
-                notify.success('End date updated');
-                setEndDateOpen(false);
-                setEndDate('');
+        endDateMutation.mutate(
+            {
+                endingAt,
+                subscription: {
+                    startingAt: subscription.startingAt,
+                    consumerConfiguration: subscription.consumerConfiguration,
+                    metadata: subscription.metadata,
+                },
             },
-            onError: error => notify.error(error, 'Failed to update end date.'),
-        });
-    }, [endDate, endDateMutation]);
+            {
+                onSuccess: () => {
+                    notify.success('End date updated');
+                    setEndDateOpen(false);
+                    setEndDate('');
+                },
+                onError: error => notify.error(error, 'Failed to update end date.'),
+            },
+        );
+    }, [endDate, endDateMutation, subscription.startingAt, subscription.consumerConfiguration, subscription.metadata]);
 
     if (isKubernetes) {
         return (

@@ -27,7 +27,7 @@ import {
     transferSubscription,
     updateSubscriptionEndDate,
 } from '../services/subscriptions';
-import type { ApproveSubscriptionPayload, CreateSubscriptionPayload, SubscriptionContext } from '../types/subscription';
+import type { ApproveSubscriptionPayload, CreateSubscriptionPayload, Subscription, SubscriptionContext } from '../types/subscription';
 import { apiDetailKeys, apiSubscriptionKeys } from '../utils/queryKeys';
 
 function invalidateApiDetail(qc: ReturnType<typeof useQueryClient>, ctx: SubscriptionContext, envId: string) {
@@ -152,7 +152,13 @@ export function useUpdateSubscriptionEndDate(ctx: SubscriptionContext, subscript
     const qc = useQueryClient();
 
     return useMutation({
-        mutationFn: (endingAt: string | null) => updateSubscriptionEndDate(envId, ctx, subscriptionId, endingAt),
+        mutationFn: ({
+            endingAt,
+            subscription,
+        }: {
+            endingAt: string | null;
+            subscription: Pick<Subscription, 'startingAt' | 'consumerConfiguration' | 'metadata'>;
+        }) => updateSubscriptionEndDate(envId, ctx, subscriptionId, subscription, endingAt),
         onSuccess: sub => {
             qc.setQueryData(apiSubscriptionKeys.detail(envId, ctx, subscriptionId), sub);
         },

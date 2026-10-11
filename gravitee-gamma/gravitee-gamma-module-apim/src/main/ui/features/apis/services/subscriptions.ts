@@ -118,16 +118,16 @@ export async function updateSubscriptionEndDate(
     envId: string,
     ctx: SubscriptionContext,
     subscriptionId: string,
+    subscription: Pick<Subscription, 'startingAt' | 'consumerConfiguration' | 'metadata'>,
     endingAt: string | null,
 ): Promise<Subscription> {
-    const current = await getSubscription(envId, ctx, subscriptionId);
     return apimFetchJsonV2<Subscription>(envId, sub(ctx, subscriptionId), {
         method: 'PUT',
         body: JSON.stringify({
-            startingAt: toOffsetDateTime(current.startingAt),
+            startingAt: toOffsetDateTime(subscription.startingAt),
             endingAt,
-            consumerConfiguration: current.consumerConfiguration,
-            metadata: current.metadata,
+            consumerConfiguration: subscription.consumerConfiguration,
+            metadata: subscription.metadata,
         }),
     });
 }

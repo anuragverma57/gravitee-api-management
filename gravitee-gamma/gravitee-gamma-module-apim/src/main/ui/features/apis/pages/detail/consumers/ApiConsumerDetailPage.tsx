@@ -18,7 +18,7 @@ import { Skeleton } from '@gravitee/graphene-core';
 import { useParams } from 'react-router-dom';
 
 import { ConsumerDetailPage } from './ConsumerDetailPage';
-import { useApiDetail } from '../../../hooks/useApiDetail';
+import { useApiDetailContext } from '../../../context/ApiDetailContext';
 import type { SubscriptionContext } from '../../../types/subscription';
 import { isFederatedApi } from '../../../utils/federatedApi';
 
@@ -27,9 +27,9 @@ export function ApiConsumerDetailPage() {
     const ctx: SubscriptionContext = { type: 'api', entityId: apiId ?? '' };
     const canUpdate = useHasPermission({ anyOf: ['api-subscription-u'] });
     const canDelete = useHasPermission({ anyOf: ['api-subscription-d'] });
-    const { data: api, isLoading } = useApiDetail(apiId);
+    const { api, isLoading } = useApiDetailContext();
 
-    if (isLoading) {
+    if (isLoading || !api) {
         return (
             <div className="space-y-4">
                 <Skeleton className="h-10 w-64 rounded" />
