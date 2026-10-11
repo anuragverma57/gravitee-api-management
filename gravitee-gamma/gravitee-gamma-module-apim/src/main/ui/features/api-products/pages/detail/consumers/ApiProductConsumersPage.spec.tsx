@@ -21,7 +21,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { ApiProductConsumersPage } from './ApiProductConsumersPage';
 import { useCreateSubscription } from '../../../../apis/hooks/useSubscriptionActions';
-import { useApiPlans, useSubscriptionList } from '../../../../apis/hooks/useSubscriptions';
+import { useApiPlans, useSubscriptionCount, useSubscriptionList } from '../../../../apis/hooks/useSubscriptions';
 import type { SubscriptionPage } from '../../../../apis/types/subscription';
 import { useApiProductResourcePermissions } from '../../../hooks/useApiProductPermissions';
 
@@ -54,6 +54,7 @@ jest.mock('../../../../apis/hooks/useSubscriptions', () => ({
     useApiPlans: jest.fn(),
     useSubscriptionCount: jest.fn(() => ({ data: 0, isLoading: false })),
     useApplicationSearch: jest.fn(() => ({ data: [], isLoading: false })),
+    ALL_SUBSCRIPTION_STATUSES: ['PENDING', 'ACCEPTED', 'REJECTED', 'CLOSED', 'PAUSED', 'RESUMED'],
     DEFAULT_STATUSES: ['ACCEPTED', 'PAUSED', 'PENDING'],
     isSubscriptionFiltersDirty: jest.fn(() => false),
 }));
@@ -216,6 +217,7 @@ const SUBSCRIPTION_PAGE: SubscriptionPage = {
 
 const mockUseApiProductResourcePermissions = useApiProductResourcePermissions as jest.Mock;
 const mockUseSubscriptionList = useSubscriptionList as jest.Mock;
+const mockUseSubscriptionCount = useSubscriptionCount as jest.Mock;
 const mockUseApiPlans = useApiPlans as jest.Mock;
 const mockUseCreateSubscription = useCreateSubscription as jest.Mock;
 
@@ -227,7 +229,8 @@ function setupDefaults() {
         canDelete: true,
         isLoading: false,
     });
-    mockUseSubscriptionList.mockReturnValue({ data: EMPTY_PAGE, isLoading: false });
+    mockUseSubscriptionList.mockReturnValue({ data: EMPTY_PAGE, isLoading: false, isFetching: false });
+    mockUseSubscriptionCount.mockReturnValue({ data: 0, isLoading: false });
     mockUseApiPlans.mockReturnValue({ data: [], isLoading: false });
     mockUseCreateSubscription.mockReturnValue({ mutate: jest.fn(), isPending: false, error: null, reset: jest.fn() });
 }
@@ -314,7 +317,8 @@ it('keeps the manage consumers view when there are no subscriptions', () => {
 
 it('renders subscriptions table when data is present', () => {
     setupDefaults();
-    mockUseSubscriptionList.mockReturnValue({ data: SUBSCRIPTION_PAGE, isLoading: false });
+    mockUseSubscriptionCount.mockReturnValue({ data: 1, isLoading: false });
+    mockUseSubscriptionList.mockReturnValue({ data: SUBSCRIPTION_PAGE, isLoading: false, isFetching: false });
     renderPage();
     expect(screen.getByText('My App')).not.toBeNull();
     expect(screen.getByText('Default Plan')).not.toBeNull();
@@ -324,7 +328,8 @@ it('renders subscriptions table when data is present', () => {
 
 it('renders skeletons while loading subscription list', () => {
     setupDefaults();
-    mockUseSubscriptionList.mockReturnValue({ data: undefined, isLoading: true });
+    mockUseSubscriptionCount.mockReturnValue({ data: 1, isLoading: false });
+    mockUseSubscriptionList.mockReturnValue({ data: undefined, isLoading: true, isFetching: true });
     renderPage();
     expect(screen.getAllByRole('generic').some(el => el.getAttribute('aria-busy') === 'true')).toBe(true);
 });
